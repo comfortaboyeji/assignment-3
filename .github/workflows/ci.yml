@@ -1,3 +1,4 @@
+ HEAD
 
 name: Voting App CI
 
@@ -48,3 +49,49 @@ jobs:
         run: |
           docker build -t voting-app:${GITHUB_SHA} ./vote
 
+
+name: Bash Application CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Bash scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run lint checks
+        run: bash scripts/lint.sh
+
+  test:
+    name: Run automated tests
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: bash tests/test.sh
+
+  docker:
+    name: Build and smoke-test Docker image
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build and smoke-test image
+        run: bash scripts/build.sh
+ f2bd666a615de2ad383585155c186f635e45f8e1
